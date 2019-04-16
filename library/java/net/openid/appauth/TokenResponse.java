@@ -63,6 +63,9 @@ public class TokenResponse {
     static final String KEY_TOKEN_TYPE = "token_type";
 
     @VisibleForTesting
+    static final String KEY_SIMPLE_TOKEN_TYPE = "type";
+
+    @VisibleForTesting
     static final String KEY_ACCESS_TOKEN = "access_token";
 
     @VisibleForTesting
@@ -213,7 +216,11 @@ public class TokenResponse {
          */
         @NonNull
         public Builder fromResponseJson(@NonNull JSONObject json) throws JSONException {
-            setTokenType(JsonUtil.getString(json, KEY_TOKEN_TYPE));
+            if (json.has(KEY_TOKEN_TYPE)) {
+                setTokenType(JsonUtil.getString(json, KEY_TOKEN_TYPE));
+            } else {
+                setTokenType(JsonUtil.getString(json, KEY_SIMPLE_TOKEN_TYPE));
+            }
             setAccessToken(JsonUtil.getStringIfDefined(json, KEY_ACCESS_TOKEN));
             setAccessTokenExpirationTime(JsonUtil.getLongIfDefined(json, KEY_EXPIRES_AT));
             if (json.has(KEY_EXPIRES_IN)) {
@@ -460,7 +467,8 @@ public class TokenResponse {
         }
         return new TokenResponse.Builder(
                 TokenRequest.jsonDeserialize(json.getJSONObject(KEY_REQUEST)))
-                .setTokenType(JsonUtil.getStringIfDefined(json, KEY_TOKEN_TYPE))
+                .setTokenType(json.has(KEY_TOKEN_TYPE) ? JsonUtil.getStringIfDefined(json, KEY_TOKEN_TYPE) :
+                    JsonUtil.getStringIfDefined(json, KEY_SIMPLE_TOKEN_TYPE))
                 .setAccessToken(JsonUtil.getStringIfDefined(json, KEY_ACCESS_TOKEN))
                 .setAccessTokenExpirationTime(JsonUtil.getLongIfDefined(json, KEY_EXPIRES_AT))
                 .setIdToken(JsonUtil.getStringIfDefined(json, KEY_ID_TOKEN))
